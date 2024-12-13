@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block body %}
+<style>
+  body { background-color: #f4f6f9; }
+  .card-custom { 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+  }
+  .card-custom:hover { 
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+  #analysis-result, #chatbot-result {
+      white-space: pre-wrap;
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-top: 20px;
+  }
+  .chatbox-container {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+  }
+  .user-message, .bot-message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+  }
+  .user-message {
+      background-color: #e9f7fd;
+      align-self: flex-end;
+  }
+  .bot-message {
+      background-color: #f1f1f1;
+      align-self: flex-start;
+  }
+</style>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+      <div class="col-md-8">
+          <div class="card card-custom">
+              <div class="card-header bg-primary text-white">
+                  <h2 class="text-center mb-0">Anti Scam Text Analyzer</h2>
+              </div>
+              <div class="card-body">
+                  <form id="scam-form" enctype="multipart/form-data">
+                      <div class="mb-3">
+                          <label for="text_input" class="form-label">Enter Text or Upload Document</label>
+                          <textarea class="form-control" id="text_input" name="text_input" rows="5" placeholder="Paste suspicious text here..."></textarea>
+                      </div>
+                      <div class="mb-3">
+                          <label for="file_input" class="form-label">Or Upload PDF/Image</label>
+                          <input class="form-control" type="file" id="file_input" name="file_input" accept=".pdf,.png,.jpg,.jpeg,.gif,.bmp">
+                      </div>
+                      <div class="text-center">
+                          <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                              Analyze for Scam Risks
+                          </button>
+                      </div>
+                  </form>
+                  
+                  <div id="loading" class="text-center mt-3 d-none">
+                      <div class="spinner-border text-primary" role="status">
+                          <span class="visually-hidden">Loading...</span>
+                      </div>
+                  </div>
+
+                  <div id="analysis-result" class="mt-4 p-3 border rounded" style="display:none;">
+                      <!-- Results will be dynamically populated here -->
+                  </div>
+
+                  <!-- Chatbot Section -->
+                  <div class="chatbox-container" id="chatbot-container" style="display:none;">
+                      <h4>Ask Questions About the Document</h4>
+                      <div id="chatbot-result"></div>
+                      <input type="text" id="chatbot-input" class="form-control" placeholder="Ask a question...">
+                      <button id="chatbot-btn" class="btn btn-info mt-3">Ask</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script> <!-- Markdown to HTML -->
+
+<script>
+  $(document).ready(function() {
+    $('#scam-form').on('submit', function(event) {
+      event.preventDefault();
+      
+      // Show loading spinner
+      $('#loading').removeClass('d-none');
+      $('#analysis-result').hide();
+      $('#chatbot-container').hide();
+      
+      var formData = new FormData(this);
+      
+      $.ajax({
+        url: '/AntiSpam',
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(response) {
+          // Hide loading spinner
+          $('#loading').addClass('d-none');
+          
+          if (response.error) {
+            $('#analysis-result').html('<p class="text-danger">' + response.error + '</p>').show();
+          } else {
+            // Convert Markdown result to HTML
+            var converter = new showdown.Converter();
+            var htmlResult = converter.makeHtml(response.result);
+            $('#analysis-result').html(htmlResult).show();
+            
+            // Enable chatbot interface
+            $('#chatbot-container').show();
+          }
+        },
+        error: function() {
+          $('#loading').addClass('d-none');
+          $('#analysis-result').html('<p class="text-danger">An error occurred while processing your request. Please try again.</p>').show();
+        }
+      });
+    });
+
+    $('#chatbot-btn').on('click', function() {
+      var userMessage = $('#chatbot-input').val();
+      if (userMessage.trim() === "") return;
+      
+      // Display user message
+      $('#chatbot-result').append('<div class="user-message">' + userMessage + '</div>');
+      $('#chatbot-input').val(''); // Clear input field
+
+      // Show loading animation for chatbot response
+      $('#chatbot-result').append('<div class="bot-message">...</div>');
+
+      $.ajax({
+        url: '/ask_question',
+        type: 'POST',
+        data: { question: userMessage },
+        success: function(response) {
+          var botMessage = response.answer || "Sorry, I couldn't understand your question.";
+          $('#chatbot-result').find('.bot-message:last').text(botMessage);
+        },
+        error: function() {
+          $('#chatbot-result').find('.bot-message:last').text("Sorry, I encountered an error.");
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

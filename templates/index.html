@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}
+Main
+{% endblock %}
+{% block body %}
+<style>
+  .hero-section {
+    background: url('https://images.unsplash.com/photo-1733392898848-72e6a57df7fe?q=80&w=2071&auto=format&fit=crop') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+  }
+
+  .cta-btn {
+    background-color: #ff6600;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    color: white;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
+  }
+
+  .cta-btn:hover {
+    background-color: #ff4500;
+  }
+
+  .features-section {
+    margin-top: 40px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px; /* Расстояние между иконкой и текстом */
+  }
+
+  .icon-square {
+    font-size: 40px;
+    color: #ff6600;
+  }
+
+  .feature-title {
+    margin-bottom: 8px;
+  }
+
+  .row-cols-custom {
+    display: flex;
+    justify-content: center; /* Выравнивание по центру */
+    gap: 30px; /* Расстояние между колонками */
+  }
+</style>
+
+<section class="hero-section">
+  <div class="container">
+    <h1 class="display-4 mb-3">Welcome to Statify</h1>
+    <p class="lead mb-4">“Empower Your Business with Smarter Financial Decisions and Total Transparency.”</p>
+    <a href="/features" class="btn btn-primary cta-btn">Get Started</a>
+  </div>
+</section>
+
+<div class="container features-section">
+  <div class="row-cols-custom">
+    <!-- Anti Scam Feature -->
+    <div class="feature-item">
+      <div class="icon-square bg-light text-dark flex-shrink-0">
+        <svg class="bi" width="2em" height="2em"><use xlink:href="#toggles2"></use></svg>
+      </div>
+      <div>
+        <h2 class="feature-title">Anti Scam</h2>
+        <p>AI-powered tool that evaluates contracts for profitability and potential risks.</p>
+        <a href="/AntiSpam" class="btn btn-primary btn-sm">Learn More</a>
+      </div>
+    </div>
+
+    <!-- Digital Signature Feature -->
+    <div class="feature-item">
+      <div class="icon-square bg-light text-dark flex-shrink-0">
+        <svg class="bi" width="2em" height="2em"><use xlink:href="#cpu-fill"></use></svg>
+      </div>
+      <div>
+        <h2 class="feature-title">Digital Signature</h2>
+        <p>Fast, secure, and convenient digital signing for smoother workflows.</p>
+        <a href="/digital" class="btn btn-primary btn-sm">Learn More</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
